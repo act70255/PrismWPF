@@ -1,0 +1,33 @@
+﻿<UserControl  x:Class="PrismWPF.Views.ViewAccounting"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PrismWPF.Views"
+      mc:Ignorable="d">
+    <DockPanel>
+        <StackPanel>
+            <TextBox x:Name="tbx" Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.InputBindings>
+                    <KeyBinding Command="{Binding RunCommand}" Key="Enter" />
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button Content="GO" Command="{Binding RunCommand}"/>
+            <Button Content="Add" Command="{Binding AddCommand}"/>
+            <Label Background="Gray" Content="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=listContent, Mode=TwoWay}"/>
+            <TextBlock Text="{Binding Result, UpdateSourceTrigger=PropertyChanged}"/>
+            <Slider x:Name = "slider" Height = "24" Width = "200" Maximum = "100" Minimum = "1" />
+            <TextBlock Text = "{Binding Value, ElementName=slider}" HorizontalAlignment="Center" Width="200" FontSize="48"/>
+            <ItemsControl x:Name="listContent" ItemsSource="{Binding Lists, UpdateSourceTrigger=PropertyChanged}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Text, ElementName=tbx}"/>
+                            <Label Content="{Binding .}"/>                            
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </DockPanel>
+</UserControl>
