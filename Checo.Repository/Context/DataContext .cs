@@ -16,7 +16,7 @@ namespace Checo.Repository.Context
         public DataContext()//(IConfiguration configuration)
         {
             //Configuration = configuration;
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
