@@ -1,4 +1,3 @@
-﻿using Prism.Commands;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -8,6 +7,9 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Text.Json;
+using System.Windows.Input;
+using Prism.Commands;
+using System.Linq;
 
 namespace PrismWPF.ViewModels
 {
@@ -16,8 +18,8 @@ namespace PrismWPF.ViewModels
         protected IContainerExtension _container;
         protected IRegionManager _regionManager;
         public string CurrentRegionName { get; set; }
-        public DelegateCommand<string> NavigateCommand { get; private set; }
-        public DelegateCommand BackCommand { get; private set; }
+        public ICommand NavigateCommand { get; private set; }
+        public ICommand BackCommand { get; private set; }
 
         public string Title { get { return _title; } set { SetProperty(ref _title, value); } }
         private string _title;
@@ -26,16 +28,31 @@ namespace PrismWPF.ViewModels
 
         public BaseViewModel()
         {
-            NavigateCommand = new DelegateCommand<string>((navigatePath) =>
+            NavigateCommand = new DelegateCommand<object>((obj) =>
             {
-                if (navigatePath != null)
+                if (obj == null)
+                    return;
+                else if (obj is string navigatePath)
                     Navigation(navigatePath);
+                else if (obj is UIMenuObj menuObj)
+                {
+                    if (menuObj.SubMenu.Any())
+                    {
+                        menuObj.IsExpand = !menuObj.IsExpand;
+                    }
+                    else
+                    {
+                        Navigation(menuObj.NavigationUrl);
+                    }
+                }
             });
 
             BackCommand = new DelegateCommand(() =>
             {
                 if (!string.IsNullOrEmpty(CurrentRegionName) && _regionManager.Regions[CurrentRegionName].NavigationService.Journal.CanGoBack)
+                {
                     _regionManager?.Regions[CurrentRegionName].NavigationService.Journal.GoBack();
+                }
             });
         }
 
