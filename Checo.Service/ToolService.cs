@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Checo.Repository.Entity;
 using Checo.Service.Interface;
 using Microsoft.Data.SqlClient;
@@ -15,21 +15,10 @@ namespace Checo.Service
         IMsSQLRepository _sqlRepository;
         public ToolService(IMsSQLRepository sqlRepository)
         {
-
             _sqlRepository = sqlRepository;
         }
-        public string ImportExcel(string path)
+        public string ImportExcelBAL(string path)
         {
-            if (string.IsNullOrEmpty(path))
-                return "";
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            ExcelPackage excel = new ExcelPackage(path);
-            var workSheet = excel.Workbook.Worksheets[0];
-            var rowCount = workSheet.Rows.EndRow;
-            var columnCount = workSheet.Columns.EndColumn;
-            workSheet.Select(new ExcelAddress(0, 0, rowCount, columnCount));
-            var obj = workSheet.SelectedRange.ToCollection<TMP_IMPORT_dm_bad_bal>();
-            //var obj = workSheet.Cells["A1:K786"].ToCollection<TMP_IMPORT_dm_bad_bal>();
             var queryInsert = @"INSERT INTO [dbo].[TMP_IMPORT_dm_bad_bal]
            ([date]
            ,[code]
@@ -46,22 +35,11 @@ namespace Checo.Service
            ,@買入成本
            ,@折溢價
            ,@累計攤銷)";
-            var result = _sqlRepository.InsertDapper(queryInsert, obj);
-            return result < 0 ? "fail" : result.ToString();
+            return ImportExcel<TMP_IMPORT_dm_bad_bal>(path, queryInsert);
         }
-        public string ImportExcelPrice(string filepath)
+        public string ImportExcelPrice(string path)
         {
-            if (string.IsNullOrEmpty(filepath))
-                return "";
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            ExcelPackage excel = new ExcelPackage(filepath);
-            var workSheet = excel.Workbook.Worksheets[0];
-            var rowCount = workSheet.Rows.EndRow;
-            var columnCount = workSheet.Columns.EndColumn;
-            workSheet.Select(new ExcelAddress(1, 0, rowCount, columnCount));
-            //var obj = workSheet.SelectedRange.ToCollection<T>();
-            var obj = workSheet.Cells["A1:Q51321"].ToCollection<TMP_cmn_bond_price>();
-            var queryInsert =@"
+            var queryInsert = @"
 INSERT INTO [dbo].[TMP_cmn_bond_price]
            ([log_id]
            ,[log_user]
@@ -97,10 +75,24 @@ INSERT INTO [dbo].[TMP_cmn_bond_price]
             ,@loguser
             ,@logtime)";
 
+            return ImportExcel<TMP_cmn_bond_price>(path, queryInsert);
+        }
+
+        public string ImportExcel<T>(string path, string queryInsert)
+        {
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(queryInsert))
+                throw new System.Exception("缺參數");
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelPackage excel = new ExcelPackage(path);
+            var workSheet = excel.Workbook.Worksheets[0];
+            var rowCount = workSheet.Rows.EndRow;
+            var columnCount = workSheet.Columns.EndColumn;
+            workSheet.Select(new ExcelAddress(0, 0, rowCount, columnCount));
+            var obj = workSheet.SelectedRange.ToCollection<T>();
+            
             var result = _sqlRepository.InsertDapper(queryInsert, obj);
             return result < 0 ? "fail" : result.ToString();
         }
-
         public void AnalysicQueryFile(string path)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
