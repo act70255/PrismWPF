@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,8 +6,8 @@ namespace Checo.Service.Interface
 {
     public interface IToolService
     {
-        string ImportExcel(string path);
-        string ImportExcelPrice(string filepath);
+        string ImportExcelBAL(string path);
+        string ImportExcelPrice(string path);
         void AnalysicQueryFile(string path);
     }
 }
