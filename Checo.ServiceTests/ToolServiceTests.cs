@@ -15,7 +15,7 @@ namespace Checo.Service.Tests
         public void ImportExcelTest()
         {
             ToolService server = new ToolService(new MsSQLRepository());
-            var result = server.ImportExcel("");
+            var result = server.ImportExcelBAL("");
             Assert.AreNotEqual(result,"");
         }
     }
